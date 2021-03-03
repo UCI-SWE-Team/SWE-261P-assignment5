@@ -3,6 +3,8 @@ package org.apache.commons.lang3.text;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,6 +38,7 @@ public class StrBuilderMockingTest {
         strBuilder.append('?');
 
         verify(strBuilder,times(4)).append(anyChar());
+        verifyNoMoreInteractions(strBuilder);
     }
 
     @Test
@@ -60,13 +63,15 @@ public class StrBuilderMockingTest {
         StrBuilder strBuilder = mock(StrBuilder.class);
 
         when(strBuilder.size()).thenReturn(100);
+        assertEquals(strBuilder.size(),100);
+
         strBuilder.append("abc");
 
-        assertEquals(strBuilder.size(),100);
 
         ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
 
-        verify(strBuilder,times(1)).append(stringCaptor.capture());
+        verify(strBuilder).append(stringCaptor.capture());
+
         assertEquals(stringCaptor.getValue(),"abc");
 
     }
@@ -76,9 +81,14 @@ public class StrBuilderMockingTest {
         StrBuilder strBuilder = new StrBuilder();
         StrBuilder spy = spy(strBuilder);
 
+        //spy class has its method work
         spy.append(1);
-        spy.size();
+        assertEquals(1,spy.size());
         verify(spy).size();
+
+        //rewrite the method in spy class
+        Mockito.doReturn(100).when(spy).size();
+        assertEquals(100,spy.size());
     }
 
     @Test
